@@ -938,6 +938,9 @@ private:
 
 		// Color mesh managed by cache
 		DataCacheHandle_t m_ColorMeshHandle;
+
+		// Value of g_nStyle0Epoch when the color mesh was baked.
+		int m_nStyle0Epoch;
 	};
 
 	// Sets up the render state for a model
@@ -2132,6 +2135,18 @@ void CModelRender::DrawModelExecute( const DrawModelState_t &state, const ModelR
 		// have static lighting, get from cache
 		hColorMeshData = m_ModelInstances[pInfo.instance].m_ColorMeshHandle;
 		CColorMeshData *pColorMeshData = CacheGet( hColorMeshData );
+
+		// The colors of a model without a static lighting cache (a prop_physics that fell asleep for example) were
+		// baked with another value of light style 0, bake them again.
+		if ( pColorMeshData && m_ModelInstances[pInfo.instance].m_nStyle0Epoch != g_nStyle0Epoch &&
+			!( m_ModelInstances[pInfo.instance].m_nFlags & ( MODEL_INSTANCE_HAS_STATIC_LIGHTING | MODEL_INSTANCE_HAS_DISKCOMPILED_COLOR ) ) )
+		{
+			if ( RecomputeStaticLighting( pInfo.instance ) )
+			{
+				pColorMeshData = CacheGet( hColorMeshData );
+			}
+		}
+
 		if ( !pColorMeshData || pColorMeshData->m_bNeedsRetry )
 		{
 			// color meshes are not present, try to re-establish
@@ -3979,6 +3994,7 @@ bool CModelRender::UpdateStaticPropColorData( IHandleEntity *pProp, ModelInstanc
 
 	// FIXME? : Move this to StudioRender?
 	ModelInstance_t &inst = m_ModelInstances[handle];
+	inst.m_nStyle0Epoch = g_nStyle0Epoch;
 	Assert( inst.m_pModel );
 	Assert( modelloader->IsLoaded( inst.m_pModel ) && ( inst.m_pModel->type == mod_studio ) );
 
@@ -4254,6 +4270,7 @@ ModelInstanceHandle_t CModelRender::CreateInstance( IClientRenderable *pRenderab
 	instance.m_flLightingTime = CURRENT_LIGHTING_UNINITIALIZED;
 	instance.m_nFlags = 0;
 	instance.m_LightCacheHandle = 0;
+	instance.m_nStyle0Epoch = g_nStyle0Epoch;
 
 	instance.m_AmbientLightingState.ZeroLightingState();
 	for ( auto &color : instance.m_AmbientLightingState.r_boxcolor )

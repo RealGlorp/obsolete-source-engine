@@ -22,6 +22,7 @@ extern	int		r_framecount;
 extern	int		d_lightstylevalue[256];	// 8.8 fraction of base light value
 extern	int		d_lightstyleframe[256];	// Frame when the light style value changed
 extern	int		d_lightstylenumframes[256]; // number of frames in the lightstyle
+extern	int		g_nStyle0Epoch;	// Increased every time the value of light style 0 changes.
 extern ConVar	r_lightmapcolorscale;
 extern ConVar	r_decals;
 extern ConVar	mp_decals;

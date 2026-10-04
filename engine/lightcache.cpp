@@ -157,6 +157,7 @@ public:
 		m_LastFrameUpdated_LightStyles = -1;
 		m_LastFrameUpdated_DynamicLighting = -1;
 
+		m_nStyle0Epoch = g_nStyle0Epoch;
 		m_LightingFlags = 0;
 		leaf = -1;
 
@@ -191,6 +192,8 @@ public:
 	LightingState_t m_DynamicLightingState; // This includes m_LightStyleLightingState
 	int				m_LastFrameUpdated_DynamicLighting;
 
+	// Value of g_nStyle0Epoch when the static lighting of this entry was computed.
+	int				m_nStyle0Epoch;
 
 	// FIXME: could just use m_LightStyleWorldLights.Count() if we are a static prop
 	int	m_LightingFlags; /* LightCacheFlags_t */
@@ -2104,6 +2107,8 @@ static const byte* ComputeStaticLightingForCacheEntry( CBaseLightCache *pcache, 
 		AddStaticLighting( pcache, origin, pVis, bStaticProp, bAddedLeafAmbientCube );
 	}
 
+	pcache->m_nStyle0Epoch = g_nStyle0Epoch;
+
 	return pVis;
 }
 
@@ -2656,7 +2661,16 @@ ITexture *LightcacheGetDynamic( const Vector& origin, LightingState_t& lightingS
 	{
 		// cache hit, move to tail of LRU
 		LightcacheMark( pCache );
-				
+
+		// the static lighting was computed with another value of light style 0.
+		if ( pCache->m_nStyle0Epoch != g_nStyle0Epoch )
+		{
+			pVis = ComputeStaticLightingForCacheEntry( pCache, pCache->m_LightingOrigin, originLeaf );
+			pVis = PrecalcLightingState( pCache, pVis );
+
+			pCache->m_LastFrameUpdated_LightStyles = -1;
+		}
+
 		if ( bComputeLightStyles && IsCachedLightStylesValid( pCache ) )
 		{
 			bComputeLightStyles = false;

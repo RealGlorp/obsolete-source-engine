@@ -63,6 +63,10 @@ int	r_dlightactive;
 //-----------------------------------------------------------------------------
 
 
+// Light style 0 is baked into the static lighting of lightcache entries and of static lit models.
+// This counts the changes of its value so that they can be computed again.
+int g_nStyle0Epoch = 0;
+
 /*
 ==================
 R_AnimateLight
@@ -99,6 +103,11 @@ void R_AnimateLight (void)
 		{
 			d_lightstylevalue[j] = k;
 			d_lightstyleframe[j] = r_framecount;
+
+			if ( j == 0 )
+			{
+				++g_nStyle0Epoch;
+			}
 		}
 	}	
 }
