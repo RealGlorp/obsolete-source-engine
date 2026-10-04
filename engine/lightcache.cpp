@@ -133,10 +133,12 @@ struct LightingStateInfo_t
 {
 	float	m_pIllum[MAXLOCALLIGHTS];
 	bool 	m_LightingStateHasSkylight;
+	bool 	m_bStaticHasSkylight;
 
 	LightingStateInfo_t()
 	{
 		m_LightingStateHasSkylight = false;
+		m_bStaticHasSkylight = false;
 		Clear();
 	}
 
@@ -1912,6 +1914,8 @@ static void AddStaticLighting(
 			}
 		}
 	}
+
+	pCache->m_bStaticHasSkylight = pCache->m_LightingStateHasSkylight;
 }
 
 
@@ -2381,6 +2385,7 @@ LightingState_t *LightcacheGetStatic( LightCacheHandle_t cache, ITexture **pEnvC
 		if ( bRecalcLightStyles )
 		{
 			// accumulate lightstyles
+			pcache->m_LightingStateHasSkylight = ( flags & LIGHTCACHEFLAGS_STATIC ) ? pcache->m_bStaticHasSkylight : false;
 			AddLightStylesForStaticProp( pcache, accumulatedState );
 			pcache->m_LightStyleLightingState = accumulatedState;
 			pcache->m_LastFrameUpdated_LightStyles = r_framecount;
