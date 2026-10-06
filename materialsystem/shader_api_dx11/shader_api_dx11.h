@@ -370,6 +370,8 @@ class CShaderAPIDx11 final : public CShaderAPIBase, public IDebugTextureInfo {
   void SceneFogColor3ub(unsigned char r, unsigned char g,
                         unsigned char b) override;
   void SceneFogMode(MaterialFogMode_t fogMode) override;
+  void SceneFogRadial(bool bRadial) override;
+  bool GetSceneFogRadial() override;
   void GetSceneFogColor(unsigned char *rgb) override;
   MaterialFogMode_t GetSceneFogMode() override;
   int GetPixelFogCombo() override;

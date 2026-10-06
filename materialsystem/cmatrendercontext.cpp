@@ -2841,6 +2841,7 @@ void CMatRenderContext::AsyncCreateTextureFromRenderTarget( ITexture* pSrcRt, co
 void CMatRenderContext::FogRadial( bool bRadial )
 {
 	m_bFogRadial = bRadial;
+	g_pShaderAPI->SceneFogRadial( bRadial );
 }
 
 // dimhotepus: TF2 backport.

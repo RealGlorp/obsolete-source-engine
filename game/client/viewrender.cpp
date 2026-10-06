@@ -144,6 +144,7 @@ static ConVar fog_maxdensity( "fog_maxdensity", "-1", FCVAR_CHEAT );
 // dimhotepus: TF2 backport.
 static ConVar fog_radial( "fog_radial", "-1", FCVAR_CHEAT );
 static ConVar fog_radialskybox( "fog_radialskybox", "-1", FCVAR_CHEAT );
+static ConVar r_radialfog_force( "r_radialfog_force", "-1", 0, "Force radial (1) or planar (0) fog without recompiling the map. -1 uses the map setting." );
 
 
 //-----------------------------------------------------------------------------
@@ -1668,12 +1669,15 @@ static bool GetFogRadial( fogparams_t *pFogParams )
 	if ( !g_pClientMode->ShouldDrawFog() )
 		return false;
 
+	if ( r_radialfog_force.GetInt() != -1 )
+		return r_radialfog_force.GetBool();
+
 	if ( fog_override.GetInt() )
 	{
 		if ( fog_radial.GetInt() != -1 )
 			return fog_radial.GetBool();
 	}
-	
+
 	if ( !pFogParams )
 		return false;
 
@@ -1835,6 +1839,9 @@ static bool GetSkyboxFogRadial()
 	// Ask the clientmode
 	if ( !g_pClientMode->ShouldDrawFog() )
 		return false;
+
+	if ( r_radialfog_force.GetInt() != -1 )
+		return r_radialfog_force.GetBool();
 
 	if ( fog_override.GetInt() )
 	{

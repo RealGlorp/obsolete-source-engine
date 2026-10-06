@@ -919,6 +919,8 @@ public:
 	void GetFogDistances( float *fStart, float *fEnd, float *fFogZ );
 
 	void SceneFogMode( MaterialFogMode_t fogMode );
+	void SceneFogRadial( bool bRadial );
+	bool GetSceneFogRadial();
 	MaterialFogMode_t GetSceneFogMode( );
 	MaterialFogMode_t GetPixelFogMode( );
 	int GetPixelFogCombo( );//0 is either range fog, or no fog simulated with rigged range fog values. 1 is height fog
@@ -1644,6 +1646,7 @@ private:
 	// fog
 	unsigned char m_SceneFogColor[3];
 	MaterialFogMode_t m_SceneFogMode;
+	bool m_bSceneFogRadial;
 
 	// Tone Mapping state ( w is gamma scale )
 	Vector4D m_ToneMappingScale;
@@ -1872,6 +1875,7 @@ CShaderAPIDx8::CShaderAPIDx8() :
 	m_SceneFogColor[1] = 0;
 	m_SceneFogColor[2] = 0;
 	m_SceneFogMode = MATERIAL_FOG_NONE;
+	m_bSceneFogRadial = false;
 
 	// We haven't yet detected whether we support CreateQuery or not yet.
 	memset(IntRenderingParameters,0,sizeof(IntRenderingParameters));
@@ -3099,6 +3103,7 @@ void CShaderAPIDx8::ResetRenderState( bool bFullReset )
 	m_SceneFogColor[1] = 0;
 	m_SceneFogColor[2] = 0;
 	m_SceneFogMode = MATERIAL_FOG_NONE;
+	m_bSceneFogRadial = false;
 
 	// This is state that isn't part of the snapshot per-se, because we
 	// don't need it when it's actually time to render. This just helps us
@@ -5368,6 +5373,21 @@ void CShaderAPIDx8::SceneFogMode( MaterialFogMode_t fogMode )
 	}
 }
 
+void CShaderAPIDx8::SceneFogRadial( bool bRadial )
+{
+	LOCK_SHADERAPI();
+	if( m_bSceneFogRadial != bRadial )
+	{
+		FlushBufferedPrimitives();
+		m_bSceneFogRadial = bRadial;
+	}
+}
+
+bool CShaderAPIDx8::GetSceneFogRadial()
+{
+	return m_bSceneFogRadial;
+}
+
 MaterialFogMode_t CShaderAPIDx8::GetSceneFogMode()
 {
 	return m_SceneFogMode;
@@ -5391,12 +5411,13 @@ int CShaderAPIDx8::GetPixelFogCombo( void )
 
 int CShaderAPIDx8::GetPixelFogCombo1( bool bSupportsRadial )
 {
-	// dimhotepus: TF2 backport. Support radial fog.
-	if( ShouldUsePixelFogForMode( m_SceneFogMode ) && bSupportsRadial )
-		return MATERIAL_FOG_LINEAR_BELOW_FOG_Z;  // MATERIAL_FOG_LINEAR_BELOW_FOG_Z is for PIXEL_FOG_TYPE_RANGE_RADIAL
-	else	
-		// Fallback to previous fog.
-		return GetPixelFogCombo();
+	// PIXEL_FOG_TYPE_RANGE_RADIAL
+	const int nRadialCombo = 2;
+
+	if( bSupportsRadial && m_bSceneFogRadial && m_SceneFogMode == MATERIAL_FOG_LINEAR && ShouldUsePixelFogForMode( m_SceneFogMode ) )
+		return nRadialCombo;
+
+	return GetPixelFogCombo();
 }
 
 static ConVar r_pixelfog( "r_pixelfog", "1" );

@@ -1032,6 +1032,10 @@ void CShaderAPIDx11::SceneFogColor3ub(unsigned char r, unsigned char g,
 
 void CShaderAPIDx11::SceneFogMode(MaterialFogMode_t fogMode) {}
 
+void CShaderAPIDx11::SceneFogRadial(bool bRadial) {}
+
+bool CShaderAPIDx11::GetSceneFogRadial() { return false; }
+
 void CShaderAPIDx11::GetSceneFogColor(unsigned char *rgb) {}
 
 MaterialFogMode_t CShaderAPIDx11::GetSceneFogMode() {

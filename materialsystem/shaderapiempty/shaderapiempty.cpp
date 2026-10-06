@@ -586,6 +586,8 @@ public:
 
 	virtual void SceneFogColor3ub( unsigned char r, unsigned char g, unsigned char b );
 	virtual void SceneFogMode( MaterialFogMode_t fogMode );
+	virtual void SceneFogRadial( bool bRadial );
+	virtual bool GetSceneFogRadial();
 	virtual void GetSceneFogColor( unsigned char *rgb );
 	virtual MaterialFogMode_t GetSceneFogMode( );
 	virtual int GetPixelFogCombo( );
@@ -2554,6 +2556,15 @@ void CShaderAPIEmpty::SceneFogColor3ub( unsigned char r, unsigned char g, unsign
 
 void CShaderAPIEmpty::SceneFogMode( MaterialFogMode_t fogMode )
 {
+}
+
+void CShaderAPIEmpty::SceneFogRadial( bool bRadial )
+{
+}
+
+bool CShaderAPIEmpty::GetSceneFogRadial()
+{
+	return false;
 }
 
 void CShaderAPIEmpty::GetSceneFogColor( unsigned char *rgb )

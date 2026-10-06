@@ -357,13 +357,18 @@ BEGIN_VS_SHADER( Water_DX90,
 
 			pShaderAPI->SetPixelShaderFogParams( 8 );
 
+			float vEyePos[4];
+			pShaderAPI->GetWorldSpaceCameraPosition( vEyePos );
+			vEyePos[3] = 0.0f;
+			pShaderAPI->SetPixelShaderConstant( 9, vEyePos );
+
 			DECLARE_DYNAMIC_VERTEX_SHADER( water_vs20 );
 			SET_DYNAMIC_VERTEX_SHADER( water_vs20 );
 			
 			if ( g_pHardwareConfig->SupportsPixelShaders_2_b() )
 			{
 				DECLARE_DYNAMIC_PIXEL_SHADER( water_ps20b );
-				SET_DYNAMIC_PIXEL_SHADER_COMBO( PIXELFOGTYPE, pShaderAPI->GetPixelFogCombo() );
+				SET_DYNAMIC_PIXEL_SHADER_COMBO( PIXELFOGTYPE, pShaderAPI->GetPixelFogCombo1( true ) );
 				SET_DYNAMIC_PIXEL_SHADER_COMBO( WRITE_DEPTH_TO_DESTALPHA, pShaderAPI->ShouldWriteDepthToDestAlpha() );
 				SET_DYNAMIC_PIXEL_SHADER( water_ps20b );
 			}
@@ -473,6 +478,11 @@ BEGIN_VS_SHADER( Water_DX90,
 			};
 			pShaderAPI->SetPixelShaderConstant( 1, cheapWaterParams );
 
+			float vEyePos[4];
+			pShaderAPI->GetWorldSpaceCameraPosition( vEyePos );
+			vEyePos[3] = 0.0f;
+			pShaderAPI->SetPixelShaderConstant( 4, vEyePos );
+
 			if( g_pConfig->bShowSpecular )
 			{
 				SetPixelShaderConstant( 2, REFLECTTINT, REFLECTBLENDFACTOR );
@@ -506,7 +516,7 @@ BEGIN_VS_SHADER( Water_DX90,
 			{
 				DECLARE_DYNAMIC_PIXEL_SHADER( watercheap_ps20b );
 				SET_DYNAMIC_PIXEL_SHADER_COMBO( HDRENABLED,  IsHDREnabled() );
-				SET_DYNAMIC_PIXEL_SHADER_COMBO( PIXELFOGTYPE, pShaderAPI->GetPixelFogCombo() );
+				SET_DYNAMIC_PIXEL_SHADER_COMBO( PIXELFOGTYPE, pShaderAPI->GetPixelFogCombo1( true ) );
 				SET_DYNAMIC_PIXEL_SHADER( watercheap_ps20b );
 			}
 			else
